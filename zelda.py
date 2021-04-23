@@ -1,19 +1,17 @@
 import cv2 as cv
 import numpy as np
 import time
-import gi
-gi.require_version('Gtk', '2.0')
 
-IMG_RGB = cv.imread('zelda5.png')
+IMG_RGB = cv.imread('testimages/zelda5.png')
 
 def createNumberSlices():
-  img_numbers = cv.imread('numbers.png', 0)
+  img_numbers = cv.imread('masks/numbers.png', 0)
   return [img_numbers[0:7,int(i*7):int(i*7)+7] for i in range(0,10)]
 
 def findHearts(threshold):
   img_gray = cv.cvtColor(IMG_RGB, cv.COLOR_BGR2GRAY)
-  template = cv.imread('heart_full.png',0)
-  mask = cv.imread('heart_mask.png',cv.IMREAD_GRAYSCALE)
+  template = cv.imread('masks/heart_full.png',0)
+  mask = cv.imread('masks/heart_mask.png',cv.IMREAD_GRAYSCALE)
   w, h = template.shape[::-1]
   y, x = img_gray.shape[::]
   res = cv.matchTemplate(img_gray[0:50,int(x/2):x],template,cv.TM_CCOEFF_NORMED,mask)
@@ -27,8 +25,8 @@ def findHearts(threshold):
 
 def findHalfHeart(threshold):
   img_gray = cv.cvtColor(IMG_RGB, cv.COLOR_BGR2GRAY)
-  template = cv.imread('heart_half.png',0)
-  mask = cv.imread('heart_full_mask.png',cv.IMREAD_GRAYSCALE)
+  template = cv.imread('masks/heart_half.png',0)
+  mask = cv.imread('masks/heart_full_mask.png',cv.IMREAD_GRAYSCALE)
   y, x = img_gray.shape[::]
   res = cv.matchTemplate(img_gray[0:50,int(x/2):x],template,cv.TM_CCOEFF_NORMED,mask)
   loc = np.where( res >= threshold)
@@ -38,7 +36,7 @@ def findItemCount(img_slice):
   loc_array = np.empty(10, dtype=object)
   loc_list = []
   tr, bw_slice = cv.threshold(img_slice,240,255,cv.THRESH_BINARY)
-  cv.imwrite('items.png',bw_slice)
+  cv.imwrite('masks/items.png',bw_slice)
   for i in range(0,10):
     loc_array = np.where( cv.matchTemplate(bw_slice,NUMBERS[i],cv.TM_CCOEFF_NORMED,NUMBERS[i]) >= .92)
     for pt in zip(*(loc_array)[::-1]):
